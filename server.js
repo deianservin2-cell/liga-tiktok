@@ -67,7 +67,11 @@ function buscarEquipo(texto) {
   if (!t) return null;
   let match = EQUIPOS.find(e => normalizar(e) === t);
   if (match) return match;
+  // el comentario contiene el nombre completo del equipo (ej: "vamos river plate")
   match = EQUIPOS.find(e => t.includes(normalizar(e)));
+  if (match) return match;
+  // el comentario es una palabra corta contenida en el nombre del equipo (ej: "boca", "river")
+  match = EQUIPOS.find(e => normalizar(e).includes(t) && t.length >= 4);
   return match || null;
 }
 
@@ -158,7 +162,7 @@ function conectar() {
   conn = new TikTokLiveConnection(USERNAME, opciones);
 
   conn.on(WebcastEvent.CHAT, data => {
-    const texto = data.comment;
+    const texto = data.content || data.comment;
     if (!texto) return;
     const equipo = buscarEquipo(texto);
     if (equipo) sumarPunto(equipo);
