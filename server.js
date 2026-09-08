@@ -151,7 +151,24 @@ setInterval(() => {
 let conn = null;
 
 function conectar() {
-  conn = new WebcastPushConnection(USERNAME);
+  conn = new TikTokLiveConnection(USERNAME);
+
+  conn.on(WebcastEvent.CHAT, data => {
+    const texto = data.comment;
+    if (!texto) return;
+    const equipo = buscarEquipo(texto);
+    if (equipo) sumarPunto(equipo);
+  });
+
+  conn.on(ControlEvent.DISCONNECTED, () => {
+    console.log('Se cortó la conexión con el live, reintentando...');
+    estado.conectado = false;
+    setTimeout(conectar, 15000);
+  });
+
+  conn.on(ControlEvent.ERROR, ({ info, exception }) => {
+    console.error('Error de conexión:', info, exception && exception.message);
+  });
 
   conn.connect()
     .then(state => {
@@ -164,25 +181,6 @@ function conectar() {
       estado.conectado = false;
       setTimeout(conectar, 15000); // reintenta en 15s
     });
-
-  conn.on('chat', data => {
-    const texto = data.comment;
-    if (!texto) return;
-    const equipo = buscarEquipo(texto);
-    if (equipo) sumarPunto(equipo);
-  });
-
-  conn.on('disconnected', () => {
-    console.log('Se cortó la conexión con el live, reintentando...');
-    estado.conectado = false;
-    setTimeout(conectar, 15000);
-  });
-
-  conn.on('streamEnd', () => {
-    console.log('El live terminó');
-    estado.conectado = false;
-    setTimeout(conectar, 15000);
-  });
 }
 
 conectar();
