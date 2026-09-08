@@ -151,7 +151,8 @@ setInterval(() => {
 let conn = null;
 
 function conectar() {
-  conn = new TikTokLiveConnection(USERNAME);
+  conn = new TikTokLiveConnection(USERNAME, {});
+
 
   conn.on(WebcastEvent.CHAT, data => {
     const texto = data.comment;
