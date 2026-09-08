@@ -151,8 +151,11 @@ setInterval(() => {
 let conn = null;
 
 function conectar() {
-  conn = new TikTokLiveConnection(USERNAME, {});
-
+  const opciones = {};
+  if (process.env.EULERSTREAM_API_KEY) {
+    opciones.signApiKey = process.env.EULERSTREAM_API_KEY;
+  }
+  conn = new TikTokLiveConnection(USERNAME, opciones);
 
   conn.on(WebcastEvent.CHAT, data => {
     const texto = data.comment;
